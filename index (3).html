@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ad Reward System</title>
+    <style>
+      body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(to bottom right, #24243e, #302b63, #0f0c29);
+    color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    overflow: hidden;
+}
+
+.container {
+    width: 90%;
+    max-width: 400px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+    text-align: center;
+    overflow-y: auto; /* Make the container scrollable */
+    max-height: 90vh; /* Restrict height to fit smaller screens */
+    position: relative;
+}
+
+h1 {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+}
+
+p {
+    margin: 10px 0;
+    font-size: 1rem;
+}
+
+input, select {
+    width: 100%;
+    padding: 12px;
+    margin: 10px 0;
+    border: none;
+    border-radius: 8px;
+    outline: none;
+    font-size: 1rem;
+    color: #000;
+    background: #fff;
+}
+
+button {
+    width: 100%;
+    padding: 12px;
+    margin: 10px 0;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+    background: linear-gradient(45deg, #ff512f, #dd2476);
+    color: #fff;
+    font-weight: bold;
+    transition: background 0.3s;
+}
+
+button:hover {
+    background: linear-gradient(45deg, #dd2476, #ff512f);
+}
+
+.hidden {
+    display: none;
+}
+
+.popup {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(255, 255, 255, 0.1);
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.8);
+    text-align: center;
+}
+
+.popup button {
+    background: #4caf50;
+}
+
+/* Responsive Design */
+@media (min-width: 768px) {
+    h1 {
+        font-size: 2rem;
+    }
+
+    button {
+        font-size: 1.1rem;
+    }
+}
+
+@media (min-width: 1024px) {
+    .container {
+        max-width: 500px;
+    }
+
+    h1 {
+        font-size: 2.5rem;
+    }
+
+    p {
+        font-size: 1.2rem;
+    }
+
+    button {
+        padding: 14px;
+        font-size: 1.2rem;
+    }
+}
+
+    </style>
+    <!-- Ad Script -->
+    <script src='//niphaumeenses.net/vignette.min.js' data-zone='8760093' data-sdk='show_8760093'></script>
+</head>
+<body>
+    <!-- Main Reward Page -->
+    <div class="container" id="reward-page" class="hidden fade-in">
+        <h1>Welcome to the Ads Reward System</h1>
+        <h10><b>ITZ ME SYTH</b></h10>
+        <p>Click below to get started!</p>
+        <div id="registration-login-buttons">
+            <button onclick="registerUser()">Register Now</button>
+            <button onclick="showLoginPage()">Login</button>
+        </div>
+        <div id="user-info" class="hidden fade-in">
+            <p class="info-text">User ID: <span id="user-id"></span></p>
+            <p class="info-text">Watched Ads: <span id="watched-ads">0</span></p>
+            <p class="info-text">Earned Points: <span id="earned-points">0</span></p>
+            <button onclick="watchAd()">Watch Ad</button>
+            <button onclick="startAutoAds()">Start Auto Ads</button>
+            <button onclick="stopAutoAds()" id="stop-auto-btn" disabled>Stop Auto Ads</button>
+            <button onclick="showWithdrawSection()">Request Withdrawal</button>
+            <button onclick="logout()">Logout</button>
+            <button onclick="showUserInfo()">Show My Information</button>
+            <button onclick="showChangePassword()">Change Password</button>
+            <div class="info-section hidden" id="user-info-section">
+                <p>PLEASE NOTE YOUR INFORMATION CAREFULLY:</p>
+                <p>User ID: <span id="info-user-id"></span></p>
+                <p>Password: <span id="info-password"></span></p>
+                <button onclick="closeUserInfo()">Close</button>
+            </div>
+            <div class="hidden" id="withdraw-section">
+                <h3>Withdraw Points</h3>
+                <input type="number" id="withdraw-amount" placeholder="Enter Points" required>
+                <select id="payment-method">
+                    <option value="bkash">Bkash</option>
+                    <option value="nagad">Nagad</option>
+                    <option value="manual">Manual</option>
+                </select>
+                <input type="text" id="withdraw-phone" placeholder="Enter Phone Number" required>
+                <button onclick="withdrawPoints()">Submit Request</button>
+                <p id="withdraw-status"></p>
+              
+            </div>
+        </div>
+    </div>
+
+    <!-- Pop-Up Message -->
+    <div class="popup" id="signup-success-popup">
+        <p>Registration Completed Successfully!</p>
+        <button onclick="showRewardPage()">Start Earning</button>
+    </div>
+
+    <!-- Login Page -->
+    <div id="login-page" class="container hidden fade-in">
+        <h1>Login</h1>
+        <input type="number" id="login-user-id" placeholder="Enter your User ID" required>
+        <input type="password" id="login-password" placeholder="Enter your Password" required>
+        <button onclick="loginUser()">Login</button>
+        <p>Don't have an account? <a href="#" onclick="showRewardPage()">Register Now</a></p>
+    </div>
+
+   <script>
+    const BOT_TOKEN = "7841125858:AAEP-BFjuKlxc9-8IhzEy6UfRLOy_HbVOc0"; // Your bot token
+    const CHAT_ID = "7607303935"; // Your chat ID (admin's ID)
+    let watchedAdsCount = 0;
+    let earnedPoints = 0;
+    let autoAdInterval;
+    let currentUser = null;
+
+    // Generate unique ID for each user
+    function generateUserId() {
+        return Math.floor(Math.random() * 1000000); // Unique ID generator
+    }
+
+    // Register User
+    function registerUser() {
+        const userId = generateUserId();
+        const password = Math.random().toString(36).slice(-8); // Random password
+
+        currentUser = {
+            userId: userId,
+            password: password,
+            watchedAds: 0,
+            earnedPoints: 0
+        };
+
+        localStorage.setItem(userId, JSON.stringify(currentUser));
+
+        document.getElementById('user-id').textContent = userId;
+        document.getElementById('user-info').classList.remove('hidden');
+        document.getElementById('signup-success-popup').classList.remove('hidden');
+        document.getElementById('reward-page').classList.remove('hidden');
+        document.getElementById('registration-login-buttons').classList.add('hidden');
+
+        const registrationMessage = `New user registered! User ID: ${userId}, Password: ${password}`;
+        sendToTelegram(registrationMessage);
+    }
+
+    // Show User Information
+    function showUserInfo() {
+        document.getElementById('info-user-id').textContent = currentUser.userId;
+        document.getElementById('info-password').textContent = currentUser.password;
+        document.getElementById('user-info-section').classList.remove('hidden');
+    }
+
+    // Close User Information Section
+    function closeUserInfo() {
+        document.getElementById('user-info-section').classList.add('hidden');
+    }
+
+    // Show Registration Page after success
+    function showRewardPage() {
+        document.getElementById('reward-page').classList.remove('hidden');
+        document.getElementById('login-page').classList.add('hidden');
+        document.getElementById('signup-success-popup').classList.add('hidden');
+    }
+
+    // Show Login Page
+    function showLoginPage() {
+        document.getElementById('reward-page').classList.add('hidden');
+        document.getElementById('login-page').classList.remove('hidden');
+    }
+
+    // Validate and login user
+    function loginUser() {
+        let userId = document.getElementById('login-user-id').value;
+        let password = document.getElementById('login-password').value;
+
+        if (validateLogin(userId, password)) {
+            document.getElementById('login-page').classList.add('hidden');
+            document.getElementById('reward-page').classList.remove('hidden');
+            document.getElementById('user-info').classList.remove('hidden');
+            document.getElementById('registration-login-buttons').classList.add('hidden');
+
+            // Retrieve updated data on login
+            document.getElementById('watched-ads').textContent = currentUser.watchedAds;
+            document.getElementById('earned-points').textContent = currentUser.earnedPoints;
+        } else {
+            alert("Invalid User ID or Password");
+        }
+    }
+
+    // Validate login credentials
+    function validateLogin(userId, password) {
+        const storedUser = JSON.parse(localStorage.getItem(userId));
+        if (storedUser && storedUser.password === password) {
+            currentUser = storedUser;
+            document.getElementById('user-id').textContent = currentUser.userId;
+            document.getElementById('watched-ads').textContent = currentUser.watchedAds;
+            document.getElementById('earned-points').textContent = currentUser.earnedPoints;
+            return true;
+        }
+        return false;
+    }
+
+    // Watch Ad
+    function watchAd() {
+        window.show_8760093(); // This triggers the ad to show
+
+        currentUser.watchedAds++;
+        currentUser.earnedPoints += 1000;
+        document.getElementById('watched-ads').textContent = currentUser.watchedAds;
+        document.getElementById('earned-points').textContent = currentUser.earnedPoints;
+        localStorage.setItem(currentUser.userId, JSON.stringify(currentUser));
+    }
+
+    // Start Auto Ads
+    function startAutoAds() {
+        autoAdInterval = setInterval(watchAd, 5000); // Trigger an ad every 5 seconds
+        document.getElementById('stop-auto-btn').disabled = false;
+    }
+
+    // Stop Auto Ads
+    function stopAutoAds() {
+        clearInterval(autoAdInterval);
+        document.getElementById('stop-auto-btn').disabled = true;
+    }
+
+    // Withdraw Points
+    function showWithdrawSection() {
+        document.getElementById('withdraw-section').classList.toggle('hidden');
+    }
+
+    function withdrawPoints() {
+        const withdrawAmount = parseInt(document.getElementById('withdraw-amount').value);
+        const phoneNumber = document.getElementById('withdraw-phone').value;
+        const paymentMethod = document.getElementById('payment-method').value;
+
+        if (!withdrawAmount || !phoneNumber) {
+            alert("Please fill in all fields");
+            return;
+        }
+
+        if (currentUser.earnedPoints >= withdrawAmount) {
+            currentUser.earnedPoints -= withdrawAmount;
+            document.getElementById('earned-points').textContent = currentUser.earnedPoints;
+
+            localStorage.setItem(currentUser.userId, JSON.stringify(currentUser));
+
+            const withdrawalMessage = `
+                Withdrawal Request:
+                User ID: ${currentUser.userId}
+                Amount: ${withdrawAmount} points
+                Payment Method: ${paymentMethod}
+                Phone Number: ${phoneNumber}
+            `;
+            sendToTelegram(withdrawalMessage);
+
+            document.getElementById('withdraw-status').textContent = "Withdrawal Request Sent! Your new balance is " + currentUser.earnedPoints + " points.";
+        } else {
+            alert("You do not have enough points for this withdrawal.");
+        }
+    }
+
+    // Change Password
+    function showChangePassword() {
+        let oldPassword = prompt("Enter your old password");
+        if (oldPassword === currentUser.password) {
+            let newPassword = prompt("Enter your new password");
+            currentUser.password = newPassword;
+
+            localStorage.setItem(currentUser.userId, JSON.stringify(currentUser));
+
+            // Send new password to Telegram
+            const passwordChangeMessage = `User ID: ${currentUser.userId} changed their password. New Password: ${newPassword}`;
+            sendToTelegram(passwordChangeMessage);
+
+            alert("Password changed successfully!");
+        } else {
+            alert("Incorrect old password.");
+        }
+    }
+
+    // Logout Function
+    function logout() {
+        document.getElementById('reward-page').classList.add('hidden');
+        document.getElementById('login-page').classList.remove('hidden');
+        document.getElementById('registration-login-buttons').classList.remove('hidden');
+    }
+
+    // Send data to Telegram Bot
+    function sendToTelegram(message) {
+        const telegramApiUrl = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
+        const params = {
+            chat_id: CHAT_ID,
+            text: message
+        };
+        fetch(`${telegramApiUrl}?chat_id=${params.chat_id}&text=${encodeURIComponent(params.text)}`);
+    }
+
+    // Validate phone number input (11 digits only)
+    function validatePhoneNumber() {
+        const phoneInput = document.getElementById('withdraw-phone');
+        
+        // Listen for the input event on the phone input field
+        phoneInput.addEventListener('input', function () {
+            // Only allow numbers
+            this.value = this.value.replace(/[^0-9]/g, '');
+
+            // Restrict to 11 digits
+            if (this.value.length > 11) {
+                this.value = this.value.slice(0, 11); // Truncate to 11 digits
+            }
+        });
+    }
+
+    // Call validatePhoneNumber when the page loads
+    window.onload = function () {
+        validatePhoneNumber();
+    };
+</script>
+
+</body>
+</html>
